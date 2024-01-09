@@ -1,12 +1,12 @@
 import json
 
 class ModeError(Exception):
-    def __init__(self):
+    def __init__(self) -> None:
         self.message = "No json path specified for json mode"
         super().__init__(self.message)
 
 class Auth:
-    def __init__(self, mode: str="json", **kwargs):
+    def __init__(self, mode: str="json", **kwargs) -> None:
         self.mode = mode
         try:
             self.json_path = kwargs["json_path"]
@@ -14,10 +14,10 @@ class Auth:
             if mode == "json":
                 raise ModeError
 
-    def login(self, username, password) -> list:
+    def login(self, username, password) -> list[bool, str]:
         def login_json():
             with open(self.json_path, "r") as f:
-                self.read_json = json.load(f)
+                self.read_json = json.load(f) #* Loads the json file and it's password data
             try:
                 if self.read_json[username] == password:
                     return [True, ""]
