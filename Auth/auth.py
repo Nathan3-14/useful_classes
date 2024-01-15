@@ -1,4 +1,11 @@
 import json
+import pyrebase
+
+with open("./firebase_config.json", "r") as f:
+    config = json.load(f)
+
+firebase = pyrebase.initialize_app(config)
+auth = firebase.auth()
 
 class ModeError(Exception):
     def __init__(self) -> None:
@@ -16,8 +23,11 @@ class Auth:
 
     def login(self, username, password) -> list[bool, str]:
         def login_json():
-            with open(self.json_path, "r") as f:
-                self.read_json = json.load(f) #* Loads the json file and it's password data
+            try:
+                with open(self.json_path, "r") as f:
+                    self.read_json = json.load(f) #* Loads the json file and it's password data
+            except Exception as e:
+                print(f"Error while reading:\n  {e}")
             try:
                 if self.read_json[username] == password:
                     return [True, ""]
@@ -26,17 +36,26 @@ class Auth:
             except KeyError:
                 return [False, "Incorrect username or password"]
         
+        def login_firebase():
+            try:
+                self.user = auth.sign_in_with_email_and_password(username, password)
+                print(self.user)
+            except Exception as e:
+                print(e)
+                print("Invalid login credentials")
+
+
         def login_other():
             print(f"Work in progress, this does not exist yet")
         
         if self.mode == "json":
             return login_json()
+        elif self.mode == "firebase":
+            return login_firebase()
+        else:
+            return login_other()
         
 
 if __name__ == "__main__":
-    auth = Auth(json_path="./login.json")
-    login = auth.login("nathan", "password")
-    if login[0]:
-        print("Welcome!")
-    else:
-        print(login[1])
+    my_auth = Auth(mode="firebase")
+    login = my_auth.login("nathan.watson@oasisbrislington.org", "password")
