@@ -1,2 +1,2 @@
 # Useful Classes
-Just some usefull python classes
+Just some useful python classes
